@@ -1,185 +1,762 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Initiative Tracker - Tactical</title>
+<title>Initiative Tracker v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
-* { box-sizing: border-box; touch-action: none; }
+:root {
+--bg: #0d0f12;
+--bg2: #13161c;
+--bg3: #1c2028;
+--border: #2a2f3a;
+--accent: #00e5c8;
+--accent2: #ff4d6d;
+--hero: #4ade80;
+--enemy: #f87171;
+--purple: #a78bfa;
+--text: #e2e8f0;
+--muted: #64748b;
+--warn: #fb923c;
+}
+
+```
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-font-family: 'Segoe UI', sans-serif; background: #121212; color: white;
-margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+font-family: 'Rajdhani', sans-serif;
+background: var(--bg);
+color: var(--text);
+height: 100dvh;
+display: flex;
+flex-direction: column;
+overflow: hidden;
 }
 
-.header-area { background: #e0e0e0; padding: 10px; border-bottom: 3px solid #bb86fc; color: #000; }
-.top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.group-select { width: 100px; background: #fff; border: 1px solid #999; padding: 4px; border-radius: 4px; }
-
-.input-row { display: grid; grid-template-columns: 2fr 0.8fr 50px; gap: 5px; }
-input { background: #fff; color: #000; border: 1px solid #ccc; padding: 8px; border-radius: 4px; }
-
-#char-list { flex: 1; overflow-y: auto; padding: 10px; touch-action: auto; }
-
-.row {
-display: flex; align-items: center; background: #1e1e1e;
-margin-bottom: 4px; padding: 12px; border-left: 5px solid #666; border-radius: 4px;
+/* ─── HEADER ─── */
+.header {
+background: var(--bg2);
+border-bottom: 1px solid var(--border);
+padding: 10px 12px 8px;
+flex-shrink: 0;
 }
-.row.hero { border-left-color: #4caf50; }
-.row.enemy { border-left-color: #f44336; }
-.row.active { background: #2c2c2c; border: 2px solid #bb86fc; box-shadow: 0 0 10px rgba(187,134,252,0.3); }
-.row.done { opacity: 0.3; filter: grayscale(1); }
-.ini { width: 30px; font-weight: bold; color: #bb86fc; }
-.name-box { flex: 1; }
-.chips { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-.chip { font-size: 10px; padding: 2px 6px; border-radius: 10px; color: white; }
-.chip-green { background: #2e7d32; }
-.chip-red { background: #c62828; }
 
-.footer-area { background: #000; padding: 10px; border-top: 2px solid #333; }
-.nav-grid { display: grid; grid-template-columns: 1.5fr 1fr 0.5fr; gap: 8px; }
-.btn { border: none; font-weight: bold; border-radius: 4px; cursor: pointer; padding: 12px 5px; font-size: 12px; }
-.btn-add { background: #bb86fc; color: black; }
-.next { background: #4caf50; color: white; }
-.wait { background: #2196f3; color: white; }
-.reset { background: #333; color: #ff5252; font-size: 10px; }
+.header-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+}
+
+.round-badge {
+font-family: 'Share Tech Mono', monospace;
+font-size: 11px;
+color: var(--muted);
+letter-spacing: 2px;
+}
+
+.round-num {
+color: var(--accent);
+font-size: 18px;
+font-weight: 700;
+}
+
+.group-tabs {
+display: flex;
+gap: 4px;
+}
+
+.group-tab {
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+font-size: 12px;
+padding: 4px 12px;
+border-radius: 3px;
+border: 1px solid var(--border);
+background: transparent;
+color: var(--muted);
+cursor: pointer;
+letter-spacing: 1px;
+transition: all .15s;
+}
+.group-tab.active {
+background: var(--accent);
+color: #000;
+border-color: var(--accent);
+}
+
+.input-grid {
+display: grid;
+grid-template-columns: 1fr 1fr 60px 44px;
+gap: 5px;
+}
+
+.inp {
+background: var(--bg3);
+color: var(--text);
+border: 1px solid var(--border);
+padding: 8px 10px;
+border-radius: 4px;
+font-family: 'Rajdhani', sans-serif;
+font-size: 14px;
+font-weight: 600;
+outline: none;
+width: 100%;
+}
+.inp:focus { border-color: var(--accent); }
+.inp::placeholder { color: var(--muted); }
+
+.hero-toggle {
+display: flex;
+align-items: center;
+gap: 5px;
+margin-top: 6px;
+font-size: 12px;
+color: var(--muted);
+cursor: pointer;
+user-select: none;
+}
+.hero-toggle input { accent-color: var(--hero); }
+
+.btn-add {
+background: var(--accent);
+color: #000;
+border: none;
+border-radius: 4px;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+font-size: 16px;
+cursor: pointer;
+transition: opacity .15s;
+}
+.btn-add:active { opacity: .7; }
+
+/* ─── LIST ─── */
+#char-list {
+flex: 1;
+overflow-y: auto;
+padding: 8px;
+touch-action: auto;
+}
+
+.char-row {
+display: flex;
+align-items: stretch;
+background: var(--bg2);
+border: 1px solid var(--border);
+border-radius: 6px;
+margin-bottom: 5px;
+overflow: hidden;
+transition: box-shadow .2s, border-color .2s, opacity .3s;
+cursor: grab;
+position: relative;
+}
+.char-row.active {
+border-color: var(--accent);
+box-shadow: 0 0 0 1px var(--accent), 0 4px 20px rgba(0,229,200,.15);
+}
+.char-row.done {
+opacity: .3;
+}
+.char-row.waiting {
+border-style: dashed;
+border-color: var(--warn);
+}
+
+.side-bar {
+width: 5px;
+flex-shrink: 0;
+}
+.side-bar.hero { background: var(--hero); }
+.side-bar.enemy { background: var(--enemy); }
+
+.ini-block {
+width: 44px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: 'Share Tech Mono', monospace;
+font-size: 18px;
+font-weight: 700;
+color: var(--accent);
+flex-shrink: 0;
+border-right: 1px solid var(--border);
+}
+
+.char-body {
+flex: 1;
+padding: 8px 10px;
+min-width: 0;
+}
+
+.char-name-row {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.char-name {
+font-size: 16px;
+font-weight: 700;
+letter-spacing: .5px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.badge-wait {
+font-size: 9px;
+font-family: 'Share Tech Mono', monospace;
+background: var(--warn);
+color: #000;
+padding: 1px 5px;
+border-radius: 2px;
+flex-shrink: 0;
+}
+
+.hp-row {
+display: flex;
+align-items: center;
+gap: 6px;
+margin-top: 4px;
+}
+.hp-label { font-size: 11px; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+.hp-bar {
+flex: 1;
+height: 4px;
+background: var(--border);
+border-radius: 2px;
+overflow: hidden;
+}
+.hp-fill {
+height: 100%;
+border-radius: 2px;
+transition: width .3s;
+}
+.hp-val { font-size: 11px; color: var(--text); font-family: 'Share Tech Mono', monospace; min-width: 52px; text-align: right; }
+
+.chips-row {
+display: flex;
+flex-wrap: wrap;
+gap: 3px;
+margin-top: 4px;
+}
+.chip {
+font-size: 10px;
+font-family: 'Share Tech Mono', monospace;
+padding: 1px 6px;
+border-radius: 2px;
+color: #fff;
+}
+.chip-green { background: #166534; border: 1px solid #4ade80; color: #4ade80; }
+.chip-red { background: #7f1d1d; border: 1px solid #f87171; color: #f87171; }
+.chip-blue { background: #1e3a5f; border: 1px solid #60a5fa; color: #60a5fa; }
+
+/* Action buttons on the right */
+.char-actions {
+display: flex;
+flex-direction: column;
+gap: 1px;
+flex-shrink: 0;
+border-left: 1px solid var(--border);
+}
+.char-btn {
+flex: 1;
+border: none;
+background: transparent;
+color: var(--muted);
+font-size: 13px;
+cursor: pointer;
+padding: 0 10px;
+transition: background .1s, color .1s;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+}
+.char-btn:hover { background: var(--bg3); color: var(--text); }
+.char-btn.del:hover { color: var(--enemy); }
+.char-btn.dmg-btn:hover { color: var(--warn); }
+.char-btn.heal-btn:hover { color: var(--hero); }
+
+/* Damage overlay */
+.dmg-overlay {
+display: none;
+position: absolute;
+inset: 0;
+background: rgba(13,15,18,.9);
+border-radius: 6px;
+align-items: center;
+justify-content: center;
+gap: 6px;
+padding: 0 10px;
+z-index: 10;
+}
+.dmg-overlay.show { display: flex; }
+.dmg-inp {
+width: 70px;
+background: var(--bg);
+color: var(--text);
+border: 1px solid var(--border);
+padding: 6px 8px;
+border-radius: 4px;
+font-family: 'Share Tech Mono', monospace;
+font-size: 16px;
+outline: none;
+text-align: center;
+}
+.dmg-inp:focus { border-color: var(--accent); }
+.dmg-ok { background: var(--accent2); color: #fff; border: none; border-radius: 4px; padding: 6px 12px; font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer; }
+.dmg-heal { background: var(--hero); color: #000; border: none; border-radius: 4px; padding: 6px 12px; font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer; }
+.dmg-cancel { background: var(--border); color: var(--text); border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Rajdhani', sans-serif; font-weight: 700; cursor: pointer; }
+
+/* ─── FOOTER ─── */
+.footer {
+background: var(--bg2);
+border-top: 1px solid var(--border);
+padding: 8px 10px;
+flex-shrink: 0;
+}
+
+.eff-row {
+display: grid;
+grid-template-columns: 1fr 60px 44px;
+gap: 5px;
+margin-bottom: 8px;
+}
+
+.btn-eff {
+background: var(--bg3);
+color: var(--accent);
+border: 1px solid var(--accent);
+border-radius: 4px;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+font-size: 18px;
+cursor: pointer;
+transition: background .15s;
+}
+.btn-eff:active { background: var(--accent); color: #000; }
+
+.nav-row {
+display: grid;
+grid-template-columns: 2fr 1.3fr 1fr;
+gap: 6px;
+}
+
+.btn-nav {
+border: none;
+border-radius: 4px;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+letter-spacing: 1px;
+font-size: 13px;
+padding: 13px 5px;
+cursor: pointer;
+transition: opacity .15s, transform .1s;
+}
+.btn-nav:active { transform: scale(.96); opacity: .85; }
+
+.btn-next { background: var(--hero); color: #000; }
+.btn-wait { background: #1d4ed8; color: #fff; }
+.btn-reset { background: var(--bg3); color: var(--accent2); border: 1px solid var(--accent2); font-size: 11px; }
+
+/* ─── ROUND END BANNER ─── */
+.round-end {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,.8);
+z-index: 100;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+gap: 12px;
+}
+.round-end.show { display: flex; }
+.round-end h2 {
+font-family: 'Share Tech Mono', monospace;
+font-size: 24px;
+color: var(--accent);
+letter-spacing: 4px;
+}
+.round-end p { color: var(--muted); font-size: 14px; }
+.round-end button {
+margin-top: 10px;
+background: var(--accent);
+color: #000;
+border: none;
+border-radius: 4px;
+padding: 14px 40px;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+font-size: 18px;
+letter-spacing: 2px;
+cursor: pointer;
+}
+
+/* scrollbar */
+#char-list::-webkit-scrollbar { width: 4px; }
+#char-list::-webkit-scrollbar-track { background: var(--bg); }
+#char-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
+```
+
 </head>
 <body>
 
-<div class="header-area">
-<div class="top-row">
-<span style="font-weight: bold;">NEUER CHARAKTER</span>
-<select id="group-sel" class="group-select" onchange="render()">
-<option value="1">Gruppe 1</option>
-<option value="2">Gruppe 2</option>
-</select>
+<!-- ── HEADER ── -->
+
+<div class="header">
+<div class="header-top">
+<div>
+<div class="round-badge">RUNDE <span class="round-num" id="round-num">1</span></div>
 </div>
-<div class="input-row">
-<input type="text" id="in-name" placeholder="Name">
-<input type="number" id="in-ini" placeholder="Ini">
-<button class="btn btn-add" onclick="addChar()">OK</button>
+<div class="group-tabs" id="group-tabs">
+<button class="group-tab active" data-g="1" onclick="switchGroup(1)">GRP 1</button>
+<button class="group-tab" data-g="2" onclick="switchGroup(2)">GRP 2</button>
+<button class="group-tab" data-g="3" onclick="switchGroup(3)">GRP 3</button>
 </div>
-<label style="font-size: 11px; margin-top: 5px; display: block; color: #444;">
-<input type="checkbox" id="in-hero"> Held (bleibt in Gruppe)
+</div>
+<div class="input-grid">
+<input class="inp" id="in-name" type="text" placeholder="Name" autocomplete="off">
+<input class="inp" id="in-ini" type="number" placeholder="Ini">
+<button class="btn-add" id="btn-add" onclick="addChar()">＋</button>
+</div>
+<label class="hero-toggle">
+<input type="checkbox" id="in-hero"> Held (gruppenübergreifend)
 </label>
 </div>
 
+<!-- ── LIST ── -->
+
 <div id="char-list"></div>
 
-<div class="footer-area">
-<div style="display: grid; grid-template-columns: 2fr 1fr 50px; gap: 5px; margin-bottom: 10px;">
-<input type="text" id="eff-name" placeholder="Effekt" list="eff-list" style="background: #222; color: white; border: 1px solid #444;">
-<datalist id="eff-list"><option value="Segen"><option value="Hast"><option value="Gift"></datalist>
-<input type="number" id="eff-dur" placeholder="Rnd" style="background: #222; color: white; border: 1px solid #444;">
-<button class="btn" style="background: #03dac6;" onclick="addEffect()">+</button>
+<!-- ── FOOTER ── -->
+
+<div class="footer">
+<div class="eff-row" style="grid-template-columns: 1fr 1fr 60px 44px;">
+<input class="inp" id="eff-name" list="eff-list" placeholder="Effekt" autocomplete="off" style="font-size:13px;">
+<datalist id="eff-list">
+<option value="Segen"><option value="Hast"><option value="Gift"><option value="Erschöpft">
+<option value="Gesegnet"><option value="Blind"><option value="Betäubt"><option value="Verlangsamt">
+<option value="Schutz vor Bösem"><option value="Schutz vor Gutem">
+</datalist>
+<select class="inp" id="eff-target" style="font-size:13px;"></select>
+<input class="inp" id="eff-dur" type="number" placeholder="Rnd">
+<button class="btn-eff" onclick="addEffect()">＋</button>
 </div>
-<div class="nav-grid">
-<button class="btn next" onclick="finishTurn()">ZUG BEENDEN</button>
-<button class="btn wait" onclick="waitTurn()">ABWARTEN</button>
-<button class="btn reset" onclick="resetRound()">RESET</button>
+<div class="nav-row">
+<button class="btn-nav btn-next" onclick="finishTurn()">ZUG BEENDEN</button>
+<button class="btn-nav btn-wait" onclick="waitTurn()">ABWARTEN</button>
+<button class="btn-nav btn-reset" onclick="confirmReset()">NEUE<br>RUNDE</button>
 </div>
+</div>
+
+<!-- ── ROUND END BANNER ── -->
+
+<div class="round-end" id="round-end">
+<h2>RUNDE BEENDET</h2>
+<p id="round-summary"></p>
+<button onclick="nextRound()">NEUE RUNDE →</button>
 </div>
 
 <script>
 let chars = [];
+let currentGroup = 1;
 let currentActiveId = null;
+let roundNumber = 1;
+let idCounter = 1;
 
+// ─── SORTABLE ───
 const listEl = document.getElementById('char-list');
 Sortable.create(listEl, {
 animation: 150,
+handle: '.char-row',
 onEnd: () => {
-const rows = Array.from(listEl.querySelectorAll('.row'));
-chars = rows.map(row => chars.find(c => c.id == row.dataset.id));
+const rows = Array.from(listEl.querySelectorAll('.char-row'));
+const newOrder = rows.map(r => chars.find(c => c.id == r.dataset.id)).filter(Boolean);
+// Rebuild chars: keep chars not in visible set, splice visible ones in order
+const visibleIds = new Set(newOrder.map(c => c.id));
+const rest = chars.filter(c => !visibleIds.has(c.id));
+// Interleave: heroes always visible, so just rebuild
+chars = [...newOrder, ...rest.filter(c => !newOrder.find(x => x.id === c.id))];
 }
 });
 
+// ─── GROUP SWITCH ───
+function switchGroup(g) {
+currentGroup = g;
+document.querySelectorAll('.group-tab').forEach(t => t.classList.toggle('active', +t.dataset.g === g));
+// Reset active to first visible
+const vis = visible();
+currentActiveId = vis.length ? vis[0].id : null;
+render();
+}
+
+function visible() {
+return chars.filter(c => c.hero || c.group === currentGroup);
+}
+
+// ─── ADD CHAR ───
 function addChar() {
-const n = document.getElementById('in-name').value;
-const i = parseInt(document.getElementById('in-ini').value) || 0;
-if(!n) return;
-const newChar = { id: Date.now(), name: n, ini: i, hero: document.getElementById('in-hero').checked, group: document.getElementById('group-sel').value, effects: [], done: false };
+const n = document.getElementById('in-name').value.trim();
+if (!n) return;
+const ini = parseInt(document.getElementById('in-ini').value) || 0;
+const hero = document.getElementById('in-hero').checked;
+const newChar = {
+id: idCounter++,
+name: n, ini, hero,
+group: currentGroup,
+effects: [],
+done: false,
+waiting: false
+};
 chars.push(newChar);
-chars.sort((a,b) => b.ini - a.ini);
+chars.sort((a, b) => b.ini - a.ini);
 if (currentActiveId === null) currentActiveId = newChar.id;
-document.getElementById('in-name').value = ""
+document.getElementById('in-name').value = '';
+document.getElementById('in-ini').value = '';
+document.getElementById('in-name').focus();
 render();
 }
 
+// ─── ADD EFFECT ───
 function addEffect() {
-const activeChar = chars.find(c => c.id === currentActiveId);
-if(!activeChar || !document.getElementById('eff-name').value) return;
-activeChar.effects.push({
-id: Date.now(),
-name: document.getElementById('eff-name').value,
-dur: parseInt(document.getElementById('eff-dur').value) || 1,
-color: document.getElementById('eff-name').value.toLowerCase().includes('segen') ? 'green' : 'red'
-});
-document.getElementById('eff-name').value = ""
+const name = document.getElementById('eff-name').value.trim();
+if (!name) return;
+const targetVal = document.getElementById('eff-target').value;
+if (!targetVal) return;
+const targetId = parseInt(targetVal);
+const target = chars.find(c => c.id === targetId);
+if (!target) return;
+const dur = parseInt(document.getElementById('eff-dur').value) || 1;
+const n = name.toLowerCase();
+let color = 'red';
+if (['segen','hast','gesegnet','heilung'].some(k => n.includes(k))) color = 'green';
+else if (['magie','zauber'].some(k => n.includes(k))) color = 'blue';
+// skipFirstTick: don't reduce on the caster's CURRENT turn end, only next time
+target.effects.push({ id: idCounter++, name, dur, color, ownerId: currentActiveId, skipFirstTick: true });
+document.getElementById('eff-name').value = '';
+document.getElementById('eff-dur').value = '';
 render();
 }
 
+// ─── REMOVE CHAR ───
+function removeChar(id) {
+chars = chars.filter(c => c.id !== id);
+if (currentActiveId === id) {
+const vis = visible();
+currentActiveId = vis.length ? vis[0].id : null;
+}
+render();
+}
+
+// ─── DAMAGE OVERLAY ───
+function showDmg(id) {
+document.querySelectorAll('.dmg-overlay').forEach(o => o.classList.remove('show'));
+const el = document.getElementById('dmg-' + id);
+if (el) {
+el.classList.add('show');
+el.querySelector('.dmg-inp').focus();
+}
+}
+
+function applyDmg(id, heal) {
+const c = chars.find(x => x.id === id);
+const inp = document.getElementById('dmg-' + id).querySelector('.dmg-inp');
+const val = parseInt(inp.value) || 0;
+if (c.hp !== null) {
+c.hp = heal ? Math.min(c.maxHp, c.hp + val) : Math.max(0, c.hp - val);
+}
+closeDmg(id);
+render();
+}
+
+function closeDmg(id) {
+const el = document.getElementById('dmg-' + id);
+if (el) el.classList.remove('show');
+}
+
+// ─── REMOVE EFFECT ───
+function removeEffect(charId, effId) {
+const c = chars.find(x => x.id === charId);
+if (c) c.effects = c.effects.filter(e => e.id !== effId);
+render();
+}
+
+// ─── TURN LOGIC ───
 function finishTurn() {
 const current = chars.find(c => c.id === currentActiveId);
-if(current) current.done = true;
+if (current) { current.done = true; current.waiting = false; }
+// Tick down effects that were cast by this char (skip first tick)
+chars.forEach(c => {
+c.effects = c.effects
+.map(e => {
+if (e.ownerId !== currentActiveId) return e;
+if (e.skipFirstTick) return { ...e, skipFirstTick: false };
+return { ...e, dur: e.dur - 1 };
+})
+.filter(e => e.dur > 0);
+});
 moveToNext();
 }
 
 function waitTurn() {
-// Fokus einfach verschieben, ohne den aktuellen als 'done' zu markieren
-moveToNext();
+const current = chars.find(c => c.id === currentActiveId);
+if (current) current.waiting = true;
+// Move to next WITHOUT marking done
+const vis = visible();
+if (!vis.length) return;
+const idx = vis.findIndex(c => c.id === currentActiveId);
+let next = null;
+for (let i = 1; i <= vis.length; i++) {
+const c = vis[(idx + i) % vis.length];
+if (!c.done && !c.waiting) { next = c; break; }
+}
+// If no non-waiting found, allow waiting chars to go
+if (!next) {
+for (let i = 1; i <= vis.length; i++) {
+const c = vis[(idx + i) % vis.length];
+if (!c.done) { next = c; break; }
+}
+}
+if (next) currentActiveId = next.id;
+render();
 }
 
 function moveToNext() {
-const g = document.getElementById('group-sel').value;
-const visible = chars.filter(c => !c.hero || c.group === g);
-if(visible.length === 0) return;
-
-let currentIndex = visible.findIndex(c => c.id === currentActiveId);
-// Wir suchen den nächsten, der noch nicht 'done' ist, beginnend nach dem aktuellen
+const vis = visible();
+if (!vis.length) return;
+const idx = vis.findIndex(c => c.id === currentActiveId);
 let next = null;
-for(let i = 1; i <= visible.length; i++) {
-let checkIdx = (currentIndex + i) % visible.length;
-if(!visible[checkIdx].done) {
-next = visible[checkIdx];
-break;
+for (let i = 1; i <= vis.length; i++) {
+const c = vis[(idx + i) % vis.length];
+if (!c.done) { next = c; break; }
 }
-}
-
-if(next) {
+if (next) {
 currentActiveId = next.id;
-// Effekt-Tick passiert JETZT, wenn der Charakter an die Reihe kommt
-next.effects = next.effects.map(e => ({ ...e, dur: e.dur - 1 })).filter(e => e.dur > 0);
 } else {
-alert("Runde beendet! Bitte Reset für neue Runde.");
+showRoundEnd();
 }
 render();
 }
 
-function resetRound() {
-if(confirm("Neue Runde starten?")) {
-chars.forEach(c => c.done = false);
-const g = document.getElementById('group-sel').value;
-const visible = chars.filter(c => !c.hero || c.group === g);
-if(visible.length > 0) currentActiveId = visible[0].id;
-render();
-}
+// ─── ROUND ───
+function showRoundEnd() {
+document.getElementById('round-summary').textContent = 'Alle Charaktere haben ihren Zug abgeschlossen.';
+document.getElementById('round-end').classList.add('show');
 }
 
+function activateChar(id) {
+const c = chars.find(x => x.id === id);
+if (!c || !c.waiting) return;
+c.waiting = false;
+
+// Reorder within the visible list:
+// place c directly after the last done char (i.e. after whoever just finished)
+const vis = visible();
+const fromIdx = vis.indexOf(c);
+vis.splice(fromIdx, 1);
+
+// Find the last done char in the visible list
+let insertAfter = -1;
+for (let i = vis.length - 1; i >= 0; i--) {
+if (vis[i].done) { insertAfter = i; break; }
+}
+vis.splice(insertAfter + 1, 0, c);
+
+// Rebuild chars by replacing visible slots in-order
+const visIds = new Set(vis.map(v => v.id));
+let vi = 0;
+chars = chars.map(x => visIds.has(x.id) ? vis[vi++] : x);
+
+currentActiveId = id;
+render();
+}
+
+function nextRound() {
+roundNumber++;
+document.getElementById('round-num').textContent = roundNumber;
+chars.forEach(c => { c.done = false; c.waiting = false; });
+const vis = visible();
+currentActiveId = vis.length ? vis[0].id : null;
+document.getElementById('round-end').classList.remove('show');
+render();
+}
+
+function confirmReset() {
+if (confirm('Neue Runde starten?')) nextRound();
+}
+
+// ─── UPDATE EFFECT TARGET DROPDOWN ───
+function updateEffectTargets() {
+const sel = document.getElementById('eff-target');
+const vis = visible();
+sel.innerHTML = '<option value="">– Ziel wählen –</option>' +
+vis.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// ─── RENDER ───
 function render() {
 const list = document.getElementById('char-list');
-const g = document.getElementById('group-sel').value;
-list.innerHTML = ""
-const visible = chars.filter(c => !c.hero || c.group === g);
-visible.forEach((c) => {
-const d = document.createElement('div');
-d.className = `row ${c.hero ? 'hero' : 'enemy'} ${c.id === currentActiveId ? 'active' : ''} ${c.done ? 'done' : ''}`;
-d.dataset.id = c.id;
-let effHtml = c.effects.map(e => `<span class="chip ${e.color==='green'?'chip-green':'chip-red'}">${e.name} (${e.dur})</span>`).join('');
-d.innerHTML = `<div class="ini">${c.ini}</div><div class="name-box"><b>${c.name}</b><div class="chips">${effHtml}</div></div><span>☰</span>`;
-list.appendChild(d);
+list.innerHTML = '';
+const vis = visible();
+
+vis.forEach(c => {
+const row = document.createElement('div');
+row.className = `char-row${c.id === currentActiveId ? ' active' : ''}${c.done ? ' done' : ''}${c.waiting && !c.done ? ' waiting' : ''}`;
+row.dataset.id = c.id;
+
+// Effects
+const effHtml = c.effects.map(e => `
+<span class="chip chip-${e.color}" onclick="removeEffect(${c.id},${e.id})" title="Klicken zum Entfernen">
+${e.name} (${e.dur})
+</span>`).join('');
+
+const waitBadge = c.waiting && !c.done ? '<span class="badge-wait">WARTET – Tippen zum Einsteigen</span>' : '';
+
+row.innerHTML = `
+<div class="side-bar ${c.hero ? 'hero' : 'enemy'}"></div>
+<div class="ini-block">${c.ini}</div>
+<div class="char-body">
+<div class="char-name-row">
+<span class="char-name">${c.name}</span>${waitBadge}
+</div>
+${effHtml ? `<div class="chips-row">${effHtml}</div>` : ''}
+</div>
+<div class="char-actions">
+<button class="char-btn del" onclick="removeChar(${c.id})">✕</button>
+</div>
+<div class="dmg-overlay" id="dmg-${c.id}">
+<input class="dmg-inp" type="number" placeholder="0" min="0">
+<button class="dmg-cancel" onclick="closeDmg(${c.id})">✕</button>
+</div>`;
+
+// Tap on waiting char → activate
+if (c.waiting && !c.done) {
+row.addEventListener('click', (e) => {
+if (!e.target.closest('.char-actions')) activateChar(c.id);
 });
+row.style.cursor = 'pointer';
 }
+
+list.appendChild(row);
+});
+
+// Scroll active into view
+const activeEl = list.querySelector('.char-row.active');
+if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+updateEffectTargets();
+}
+
+// ─── KEYBOARD ───
+document.getElementById('in-name').addEventListener('keydown', e => { if (e.key === 'Enter') addChar(); });
+
+render();
 </script>
+
 </body>
 </html>
