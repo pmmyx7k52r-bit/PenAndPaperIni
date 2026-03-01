@@ -341,7 +341,7 @@ transition: background .15s;
 
 .nav-row {
 display: grid;
-grid-template-columns: 2fr 1.3fr 1fr;
+grid-template-columns: 2fr 1.3fr 1fr 1fr;
 gap: 6px;
 }
 
@@ -361,6 +361,7 @@ transition: opacity .15s, transform .1s;
 .btn-next { background: var(--hero); color: #000; }
 .btn-wait { background: #1d4ed8; color: #fff; }
 .btn-reset { background: var(--bg3); color: var(--accent2); border: 1px solid var(--accent2); font-size: 11px; }
+.btn-end { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); font-size: 11px; }
 
 /* ─── ROUND END BANNER ─── */
 .round-end {
@@ -451,6 +452,7 @@ cursor: pointer;
 <button class="btn-nav btn-next" onclick="finishTurn()">ZUG BEENDEN</button>
 <button class="btn-nav btn-wait" onclick="waitTurn()">ABWARTEN</button>
 <button class="btn-nav btn-reset" onclick="confirmReset()">NEUE<br>RUNDE</button>
+<button class="btn-nav btn-end" onclick="confirmEndCombat()">KAMPF<br>ENDE</button>
 </div>
 </div>
 
@@ -688,6 +690,18 @@ render();
 
 function confirmReset() {
 if (confirm('Neue Runde starten?')) nextRound();
+}
+
+// ─── END COMBAT ───
+function confirmEndCombat() {
+if (confirm('Kampf beenden? Alle Feinde werden entfernt, Helden behalten ihre Einträge.')) {
+chars = chars.filter(c => c.hero);
+chars.forEach(c => { c.done = false; c.waiting = false; c.effects = []; c.ini = 0; });
+currentActiveId = null;
+roundNumber = 1;
+document.getElementById('round-num').textContent = '1';
+render();
+}
 }
 
 // ─── UPDATE EFFECT TARGET DROPDOWN ───
