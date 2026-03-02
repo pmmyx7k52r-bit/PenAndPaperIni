@@ -397,6 +397,21 @@ letter-spacing: 2px;
 cursor: pointer;
 }
 
+.edit-banner {
+background: #1a2a1a; border: 1px solid var(--hero); border-radius: 6px;
+padding: 10px 12px; margin: 8px; display: flex; align-items: center;
+justify-content: space-between; gap: 8px;
+}
+.edit-banner span { color: var(--hero); font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 1px; }
+.btn-start { background: var(--hero); color: #000; border: none; border-radius: 4px;
+font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 14px;
+padding: 8px 18px; cursor: pointer; letter-spacing: 1px; }
+.ini-edit {
+width: 48px; background: var(--bg); color: var(--accent);
+border: 1px solid var(--accent); border-radius: 3px;
+font-family: 'Share Tech Mono', monospace; font-size: 16px;
+font-weight: 700; text-align: center; padding: 2px 4px;
+}
 /* scrollbar */
 #char-list::-webkit-scrollbar { width: 4px; }
 #char-list::-webkit-scrollbar-track { background: var(--bg); }
@@ -470,6 +485,7 @@ let currentGroup = 1;
 let currentActiveId = null;
 let roundNumber = 1;
 let idCounter = 1;
+let editMode = false;
 
 // ─── SORTABLE ───
 const listEl = document.getElementById('char-list');
@@ -700,8 +716,21 @@ chars.forEach(c => { c.done = false; c.waiting = false; c.effects = []; c.ini = 
 currentActiveId = null;
 roundNumber = 1;
 document.getElementById('round-num').textContent = '1';
+editMode = true;
 render();
 }
+}
+
+function startCombat() {
+// Read edited ini values from inputs
+chars.forEach(c => {
+const inp = document.getElementById('ini-edit-' + c.id);
+if (inp) c.ini = parseInt(inp.value) || 0;
+});
+chars.sort((a, b) => b.ini - a.ini);
+editMode = false;
+currentActiveId = chars.length ? chars[0].id : null;
+render();
 }
 
 // ─── UPDATE EFFECT TARGET DROPDOWN ───
@@ -716,6 +745,18 @@ vis.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 function render() {
 const list = document.getElementById('char-list');
 list.innerHTML = '';
+
+// Edit mode banner
+let banner = document.getElementById('edit-banner');
+if (!banner) {
+banner = document.createElement('div');
+banner.id = 'edit-banner';
+banner.className = 'edit-banner';
+banner.innerHTML = '<span>✏ INI-WERTE FÜR NEUEN KAMPF</span><button class="btn-start" onclick="startCombat()">KAMPF STARTEN →</button>';
+list.parentNode.insertBefore(banner, list);
+}
+banner.style.display = editMode ? 'flex' : 'none';
+
 const vis = visible();
 
 vis.forEach(c => {
@@ -731,9 +772,12 @@ ${e.name} (${e.dur})
 
 const waitBadge = c.waiting && !c.done ? '<span class="badge-wait">WARTET – Tippen zum Einsteigen</span>' : '';
 
+const iniCell = editMode && c.hero
+? `<input id="ini-edit-${c.id}" class="ini-edit" type="number" value="${c.ini}">`
+: `<div class="ini-block">${c.ini}</div>`;
 row.innerHTML = `
 <div class="side-bar ${c.hero ? 'hero' : 'enemy'}"></div>
-<div class="ini-block">${c.ini}</div>
+${iniCell}`
 <div class="char-body">
 <div class="char-name-row">
 <span class="char-name">${c.name}</span>${waitBadge}
